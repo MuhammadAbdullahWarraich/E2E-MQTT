@@ -1,6 +1,9 @@
 import httpx
 import time
 import paho.mqtt.client as mqtt
+from ..encryption import encrypt_data
+
+KEY_AUTHORITY_URL = "localhost:8000"
 
 def on_publish(client, userdata, mid, reason_code, properties):
     # reason_code and properties will only be present in MQTTv5. It's always unset in MQTTv3
@@ -19,7 +22,6 @@ def on_publish(client, userdata, mid, reason_code, properties):
         print("We could also try using a list of acknowledged mid rather than removing from pending list,")
         print("but remember that mid could be re-used !")
 
-KEY_AUTHORITY_URL = "localhost:8000"
 
 def get_public_key(group_id):
     res = httpx.post(f"{KEY_AUTHORITY_URL}/group-pub-key", json=group_id)
@@ -28,7 +30,6 @@ def get_public_key(group_id):
     else:
         raise Exception("invalid group id provided!")
 
-from ..mock_encryption_lib import mock_encryption_algo
 
 def main(unacked_publish, mqttc):
     while True:
@@ -38,7 +39,7 @@ def main(unacked_publish, mqttc):
         qos = int(input("please enter quality of service(QoS): "))
 
         public_key = get_public_key(group_id)
-        msg = mock_encryption_algo(msg, public_key)
+        msg = encrypt_data(msg, public_key)
 
         # Our application produce some messages
         msg_info = mqttc.publish(topic, msg, qos=qos)
