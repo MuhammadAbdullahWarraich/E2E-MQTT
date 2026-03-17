@@ -2,8 +2,7 @@ import httpx
 import time
 import paho.mqtt.client as mqtt
 from ..encryption import encrypt_data
-
-KEY_AUTHORITY_URL = "localhost:8000"
+from ..globals import KEY_AUTHORITY_URL
 
 def on_publish(client, userdata, mid, reason_code, properties):
     # reason_code and properties will only be present in MQTTv5. It's always unset in MQTTv3
@@ -58,7 +57,8 @@ if __name__ == "__main__":
     mqttc.on_publish = on_publish
     
     mqttc.user_data_set(unacked_publish)
-    mqttc.connect("mqtt.eclipseprojects.io")
+    mqttc.tls_set()
+    mqttc.connect(host="127.0.0.1", port=8883)
     mqttc.loop_start()
     try:
         main(unacked_publish, mqttc)
