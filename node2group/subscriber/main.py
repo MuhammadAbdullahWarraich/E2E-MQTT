@@ -32,7 +32,7 @@ def get_private_key():
 def on_message(client, userdata, message):
     # userdata is the structure we choose to provide, here it's a list()
     priv_key = get_private_key()
-    message = decrypt_data(message, priv_key)
+    message = decrypt_data(message.payload, priv_key)
     print("we got message: ", message)
 
 def on_connect(client, userdata, flags, reason_code, properties):
@@ -45,14 +45,18 @@ def on_connect(client, userdata, flags, reason_code, properties):
 
 
 def main():
-    mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
-    mqttc.on_connect = on_connect
-    mqttc.on_message = on_message
-    mqttc.on_subscribe = on_subscribe
-    mqttc.on_unsubscribe = on_unsubscribe
+    try:
+        mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
+        mqttc.on_connect = on_connect
+        mqttc.on_message = on_message
+        mqttc.on_subscribe = on_subscribe
+        mqttc.on_unsubscribe = on_unsubscribe
+        mqttc.user_data_set([])
+        mqttc.connect(host="127.0.0.1")
+        mqttc.loop_forever()
+    except KeyboardInterrupt:
+        mqttc.disconnect()
 
-    mqttc.user_data_set([])
-    mqttc.tls_set()
-    mqttc.connect(host="127.0.0.1", port=8883)
-    mqttc.loop_forever()
-    
+ 
+if __name__ == "__main__":
+    main()

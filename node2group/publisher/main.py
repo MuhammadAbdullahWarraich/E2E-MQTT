@@ -23,11 +23,15 @@ def on_publish(client, userdata, mid, reason_code, properties):
 
 
 def get_public_key(group_id):
-    res = httpx.post(f"{KEY_AUTHORITY_URL}/group-pub-key", json=group_id)
-    if res.status_code == httpx.codes.OK:
-        return res.json()
-    else:
-        raise Exception("invalid group id provided!")
+    i = 0
+    while True:
+        res = httpx.post(f"{KEY_AUTHORITY_URL}/group-pub-key/", json=group_id)
+        if res.status_code == httpx.codes.OK:
+            return res.json()
+        elif i == 3:
+            raise Exception("invalid group id provided!")
+        else:
+            i += 1
 
 
 def main(unacked_publish, mqttc):
@@ -57,8 +61,7 @@ if __name__ == "__main__":
     mqttc.on_publish = on_publish
     
     mqttc.user_data_set(unacked_publish)
-    mqttc.tls_set()
-    mqttc.connect(host="127.0.0.1", port=8883)
+    mqttc.connect(host="127.0.0.1")
     mqttc.loop_start()
     try:
         main(unacked_publish, mqttc)
