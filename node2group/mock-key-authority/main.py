@@ -14,11 +14,11 @@ from typing import Annotated
 app = FastAPI()
 
 @app.post("/group-pub-key/")
-def get_group_public_key(id: Annotated[str, Body()]):
-    if (group_id := ID_TO_GROUP.get(id)) != None:
+def get_group_public_key(group_id: Annotated[int, Body()]):
+    if group_id >= 0 and group_id < len(GROUP_KEY_PAIRS):
         _, pub = GROUP_KEY_PAIRS[group_id]
         return pub
-    
+
 @app.post("/group-priv-key/")
 def get_group_private_key(id: Annotated[str, Body()]):
     if (group_id := ID_TO_GROUP.get(id)) != None:
