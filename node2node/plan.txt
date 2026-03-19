@@ -1,0 +1,5 @@
+1. publisher subscribes to the topic /secretsub
+2. client publishes a message to the topic /secretsub containing its public key and a unique id(for example MAC address)
+3. client subscribes to the topic /secret/<MAC address of client>
+4. publishes encrypts message using public key of client and sends secret message to /secret/<MAC address of client>
+5. client decrypts using its private key
