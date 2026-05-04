@@ -25,15 +25,17 @@ def on_unsubscribe(client, userdata, mid, reason_code_list, properties):
 def get_private_key():
     res = httpx.post(f"{KEY_AUTHORITY_URL}/group-priv-key/", json=MAC_ADDRESS)
     if res.status_code == httpx.codes.OK:
-        return res.json()
+        return res.read()
     else:
         raise Exception("invalid unique id(MAC_ADDRESS) provided!")
 
 def on_message(client, userdata, message):
     # userdata is the structure we choose to provide, here it's a list()
     priv_key = get_private_key()
+    print(f"[INFO] received encrypted message: {message.payload}")
     message = decrypt_data(message.payload, priv_key)
-    print("we got message: ", message)
+    message = message.decode('utf-8')
+    print("(after decryption...) we got message: ", message)
 
 def on_connect(client, userdata, flags, reason_code, properties):
     if reason_code.is_failure:
